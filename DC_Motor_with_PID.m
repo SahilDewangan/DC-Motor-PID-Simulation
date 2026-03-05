@@ -75,8 +75,8 @@ for i = 1:3
 
   heat_loss = ((i_data) .^ 2) .* R;
   power_output = (Kt .* w_data) .* i_data;
-  power_input = max(abs(V_plot .* i_data), 5);
-  eff = min(max((power_output ./ power_input) .* 100, 0), 100);
+  power_input = max(abs(V_plot .* i_data), 5); %power floor to prevent division by zero during transients
+  eff = min(max((power_output ./ power_input) .* 100, 0), 100); %Efficiency is capped at 100% to prevent division by zero during transients
 
   % ---Plotting---
 
@@ -84,7 +84,7 @@ for i = 1:3
   subplot(3,2,1); hold on; plot(t,w_data,'Color',color,'LineWidth',2); title("Speed"); ylabel("Speed(rad/s)"); xlabel("Time(s)"); grid on; ylim([0 30]);
   subplot(3,2,5); hold on; plot(t,V_plot,'Color',color,'LineWidth',2); title("Control Voltage"); ylabel("Voltage(V)"); xlabel("Time(s)"); grid on;
 
-  subplot(3,2,2); hold on; plot(t,heat_loss,'Color',color,'LineWidth',2); title("Heat Lost"); ylabel("Heat(J)"); xlabel("Time(s)"); grid on;
+  subplot(3,2,2); hold on; plot(t,heat_loss,'Color',color,'LineWidth',2); title("Heat Lost"); ylabel("Heat(W)"); xlabel("Time(s)"); grid on;
   subplot(3,2,4); hold on; plot(t,power_output,'Color',color,'LineWidth',2); title("Output Power"); ylabel("Power(W)"); xlabel("Time(s)"); grid on; ylim([0 30]);
   subplot(3,2,6); hold on; plot(t,eff,'Color',color,'LineWidth',2); title("Efficiency"); ylabel("Efficiency(%)"); xlabel("Time(s)"); grid on;
 

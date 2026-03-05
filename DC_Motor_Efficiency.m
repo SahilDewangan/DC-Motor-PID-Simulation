@@ -79,11 +79,11 @@ for i = 1:3
 
 end
 
-subplot(3,2,3); title("Armature Current"); grid on; xlabel("Time(s)"); ylabel("Armature Current(A)");
+subplot(3,2,3); title("Armature Current"); grid on; xlabel("Time(s)"); ylabel("Current(A)");
 
 subplot(3,2,1); title("Speed "); grid on; xlabel("Time(s)"); ylabel("Speed(rad/s)");
 
-subplot(3,2,2); title("Heat Lost"); grid on; xlabel("Time(s)"); ylabel("Heat(J)");
+subplot(3,2,2); title("Heat Lost"); grid on; xlabel("Time(s)"); ylabel("Heat(W)");
 
 subplot(3,2,4); title("Output Power"); grid on; xlabel("Time(s)"); ylabel("Power(W)");
 
