@@ -1,21 +1,44 @@
+%% DC Motor PID Control Simulation
+% Analyzes the effect of varying Moment of Inertia (J) on system stability,
+% power consumption, and efficiency under a step load change.
+
 global R L Kb Kt w_ref J B Kp Ki Kd;
-R = 2.0; L = 0.5; Kb = 0.1; Kt = 0.1; B = 0.01; w_ref = 20;
-Kp = 5.0; Ki = 2.0; Kd = 0.5;
+
+% ---Physical Parameters---
+
+R = 2.0;      % resistance
+L = 0.5;      %inductance
+Kb = 0.1;     %back EMF constant
+Kt = 0.1;     %Torque constant
+B = 0.01;     %friction coefficient
+w_ref = 20;   %desired speed
+
+% ---PID Gain Parameters---
+Kp = 5.0;
+Ki = 2.0;
+Kd = 0.5;
+
+% Defining different cases of inertia
 
 J_list = [0.01, 0.05, 0.10];
 colors = {'r', 'b', [0, 0.5, 0]};
 
+% Main motor system function
+
 function xdot = motor_system(x, t)
   global R L Kb Kt w_ref J B Kp Ki Kd;
 
-  TL = (t<2.5) * 0.05 + (t>=2.5) * 0.4;
+  TL = (t<2.5) * 0.05 + (t>=2.5) * 0.4;     %Load Torque variation
 
-  error = w_ref - x(2);
+  error = w_ref - x(2);                     %difference between desired speed and speed of rotor
 
   dw_dt_est = (Kt .* x(1) - B .* x(2) - TL)/J;
 
+% PID control equations
   V_raw = (Kp .* error) + (Ki .* x(3)) + (Kd .* -dw_dt_est);
   V_out = max(min(V_raw, 24), -24);
+
+% Main Electrical and Mechanical Equations
 
   di_dt = (V_out - Kb .* x(2) - x(1) .* R)/L;
   dw_dt = (Kt .* x(1) - B .* x(2) - TL)/J;
@@ -25,12 +48,16 @@ function xdot = motor_system(x, t)
 
 endfunction
 
+%Simulation and Graph Plotting
+
 figure(1); clf;
 
 for i = 1:3
   global J;
   J = J_list(i);
   color = colors{i};
+
+  %Solving equations using lsode
 
   t = linspace(0, 5, 2000);
   y = lsode("motor_system", [0;0;0], t);
@@ -44,11 +71,14 @@ for i = 1:3
   V_raw = Kp*(w_ref - w_data) + Ki*e_data + Kd*(-dw_dt_vec);
   V_plot = max(min(V_raw, 24), -24);
 
+  % ---Energy Parameters calculations---
 
   heat_loss = ((i_data) .^ 2) .* R;
   power_output = (Kt .* w_data) .* i_data;
   power_input = max(abs(V_plot .* i_data), 5);
   eff = min(max((power_output ./ power_input) .* 100, 0), 100);
+
+  % ---Plotting---
 
   subplot(3,2,3); hold on; plot(t,i_data,'Color',color,'LineWidth',2); title("Armature current"); ylabel("Current(A)"); xlabel("Time(s)"); grid on;
   subplot(3,2,1); hold on; plot(t,w_data,'Color',color,'LineWidth',2); title("Speed"); ylabel("Speed(rad/s)"); xlabel("Time(s)"); grid on; ylim([0 30]);
